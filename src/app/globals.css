@@ -122,9 +122,21 @@ button {
   color: rgba(246, 247, 251, 0.85);
 }
 
+.request-card__status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .request-card__actions {
   display: flex;
   gap: 0.75rem;
+  align-items: center;
+}
+
+.request-card__status-text {
+  color: rgba(246, 247, 251, 0.7);
+  font-size: 0.9rem;
 }
 
 .search {
@@ -237,6 +249,41 @@ button {
   color: #f6f7fb;
 }
 
+.status-pill {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.status-pill--pending {
+  background: rgba(248, 211, 135, 0.2);
+  color: #f8d387;
+  border-color: rgba(248, 211, 135, 0.4);
+}
+
+.status-pill--accepted,
+.status-pill--read {
+  background: rgba(135, 248, 196, 0.2);
+  color: #87f8c4;
+  border-color: rgba(135, 248, 196, 0.4);
+}
+
+.status-pill--rejected {
+  background: rgba(255, 151, 151, 0.2);
+  color: #ff9797;
+  border-color: rgba(255, 151, 151, 0.4);
+}
+
+.status-pill--timer {
+  background: rgba(124, 196, 255, 0.2);
+  color: #cfe8ff;
+  border-color: rgba(124, 196, 255, 0.4);
+}
+
 .message-list {
   display: grid;
   gap: 1rem;
@@ -274,10 +321,50 @@ button {
   color: rgba(246, 247, 251, 0.9);
 }
 
+.message-card__indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .message-card__meta {
   margin: 0;
   color: rgba(246, 247, 251, 0.7);
   font-size: 0.85rem;
+}
+
+.toast-stack {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 100;
+}
+
+.toast {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(12, 17, 27, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  font-size: 0.9rem;
+}
+
+.toast--info {
+  border-color: rgba(124, 196, 255, 0.4);
+  color: #cfe8ff;
+}
+
+.toast--positive {
+  border-color: rgba(135, 248, 196, 0.4);
+  color: #87f8c4;
+}
+
+.toast--negative {
+  border-color: rgba(255, 151, 151, 0.4);
+  color: #ff9797;
 }
 
 @media (min-width: 640px) {

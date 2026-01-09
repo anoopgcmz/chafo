@@ -43,6 +43,10 @@ export function MessageList({ initialMessages }: MessageListProps) {
           const deletionDate = message.deletionAt
             ? new Date(message.deletionAt)
             : undefined;
+          const secondsRemaining = deletionDate
+            ? Math.max(0, Math.ceil((deletionDate.getTime() - now.getTime()) / 1000))
+            : null;
+
           return (
             <article key={message.id} className="message-card">
               <header className="message-card__header">
@@ -50,6 +54,16 @@ export function MessageList({ initialMessages }: MessageListProps) {
                 <span className="message-card__timestamp">{message.createdAt}</span>
               </header>
               <p className="message-card__body">{message.body}</p>
+              <div className="message-card__indicators">
+                {message.readAt && (
+                  <span className="status-pill status-pill--read">Message read</span>
+                )}
+                {secondsRemaining !== null && (
+                  <span className="status-pill status-pill--timer">
+                    Expiring in {secondsRemaining} sec
+                  </span>
+                )}
+              </div>
               {message.readAt && (
                 <p className="message-card__meta">Read at {message.readAt}</p>
               )}
