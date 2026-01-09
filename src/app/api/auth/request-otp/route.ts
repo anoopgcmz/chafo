@@ -1,12 +1,15 @@
 import { getOtpCollection } from '@/models/Otp';
 import { generateOtpCode, hashOtp } from '@/lib/otp';
 import { validatePhoneNumber } from '@/lib/phone';
+import { getClientIp } from '@/lib/request';
+import { enforceRateLimit } from '@/lib/rateLimit';
 import { sendSms } from '@/services/sms';
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const REQUEST_COOLDOWN_MS = 60 * 1000;
 const REQUEST_WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 5;
+const MAX_REQUESTS_PER_IP_WINDOW = 8;
 const DEV_OTP_CODE = '123456';
 
 type OtpRequestPayload = {
@@ -38,6 +41,21 @@ export async function POST(request: Request) {
   }
 
   const phone = phoneValidation.normalized;
+  const clientIp = getClientIp(request) ?? 'unknown';
+  const rateLimit = await enforceRateLimit({
+    key: `otp:${phone}:${clientIp}`,
+    windowMs: REQUEST_WINDOW_MS,
+    maxRequests: MAX_REQUESTS_PER_IP_WINDOW,
+    cooldownMs: REQUEST_COOLDOWN_MS,
+  });
+
+  if (!rateLimit.allowed) {
+    const retryAfter = Math.ceil((rateLimit.retryAfterMs ?? 0) / 1000);
+    return Response.json(
+      { error: 'Too many OTP requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
+    );
+  }
   const now = new Date();
   const collection = await getOtpCollection();
   const existing = await collection.findOne({ phone });

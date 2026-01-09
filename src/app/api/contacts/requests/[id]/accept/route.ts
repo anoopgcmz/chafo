@@ -1,5 +1,6 @@
 import type { MongoServerError } from 'mongodb';
 
+import { writeAuditLog } from '@/lib/audit';
 import { toObjectId } from '@/lib/contacts';
 import { getContactCollection } from '@/models/Contact';
 import { getContactRequestCollection } from '@/models/ContactRequest';
@@ -39,6 +40,15 @@ export async function POST(
     { _id: objectId },
     { $set: { status: 'accepted', updatedAt: now } }
   );
+  await writeAuditLog({
+    action: 'contact_request.accepted',
+    actorId: contactRequest.receiver.id,
+    targetId: requestId,
+    metadata: {
+      requesterId: contactRequest.requester.id,
+      receiverId: contactRequest.receiver.id,
+    },
+  });
 
   const participantIds = [
     contactRequest.requester.id,

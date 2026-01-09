@@ -1,4 +1,5 @@
 import { validatePhoneNumber } from '@/lib/phone';
+import { validateEmail, validateName } from '@/lib/validation';
 
 type RegisterPayload = {
   phone?: string;
@@ -67,14 +68,14 @@ export async function POST(request: Request) {
 
   const errors: ValidationError[] = [];
 
-  if (!payload.name?.trim()) {
-    errors.push({ field: 'name', message: 'Name is required.' });
+  const nameValidation = validateName(payload.name ?? '');
+  if (nameValidation.error) {
+    errors.push({ field: 'name', message: nameValidation.error });
   }
 
-  if (!payload.email?.trim()) {
-    errors.push({ field: 'email', message: 'Email is required.' });
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-    errors.push({ field: 'email', message: 'Email must be valid.' });
+  const emailValidation = validateEmail(payload.email ?? '');
+  if (emailValidation.error) {
+    errors.push({ field: 'email', message: emailValidation.error });
   }
 
   const phoneValidation = validatePhoneNumber(payload.phone ?? '');
@@ -96,8 +97,8 @@ export async function POST(request: Request) {
       status: 'ok',
       user: {
         phone: phoneValidation.normalized,
-        email: payload.email?.trim(),
-        name: payload.name?.trim(),
+        email: emailValidation.normalized,
+        name: nameValidation.normalized,
         dateOfBirth: payload.dateOfBirth,
         profileMetadata: payload.profileMetadata ?? {},
       },

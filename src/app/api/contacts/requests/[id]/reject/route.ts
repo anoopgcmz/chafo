@@ -1,3 +1,4 @@
+import { writeAuditLog } from '@/lib/audit';
 import { toObjectId } from '@/lib/contacts';
 import { getContactRequestCollection } from '@/models/ContactRequest';
 
@@ -34,6 +35,15 @@ export async function POST(
     { _id: objectId },
     { $set: { status: 'rejected', updatedAt: now } }
   );
+  await writeAuditLog({
+    action: 'contact_request.rejected',
+    actorId: contactRequest.receiver.id,
+    targetId: requestId,
+    metadata: {
+      requesterId: contactRequest.requester.id,
+      receiverId: contactRequest.receiver.id,
+    },
+  });
 
   return Response.json({
     status: 'ok',

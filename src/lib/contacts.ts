@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 import type { ContactParticipant } from '@/models/ContactParticipant';
+import { sanitizeEmail, sanitizeName, sanitizePhoneNumber, validateEmail, validateName } from '@/lib/validation';
 
 export type ContactParticipantPayload = Partial<ContactParticipant>;
 
@@ -25,11 +26,34 @@ export function validateParticipant(
       message: `${role[0].toUpperCase()}${role.slice(1)} id is required.`,
     });
   }
-  if (!participant?.name?.trim()) {
+
+  const nameValidation = validateName(participant?.name ?? '');
+  if (nameValidation.error) {
     errors.push({
       field: `${role}.name`,
-      message: `${role[0].toUpperCase()}${role.slice(1)} name is required.`,
+      message: nameValidation.error,
     });
+  }
+
+  if (participant?.email?.trim()) {
+    const emailValidation = validateEmail(participant.email);
+    if (emailValidation.error) {
+      errors.push({
+        field: `${role}.email`,
+        message: emailValidation.error,
+      });
+    }
+  }
+
+  if (participant?.phone?.trim()) {
+    const normalizedPhone = sanitizePhoneNumber(participant.phone);
+    if (!normalizedPhone) {
+      errors.push({
+        field: `${role}.phone`,
+        message:
+          'Phone number must include 10 to 15 digits (country code required).',
+      });
+    }
   }
   return errors;
 }
@@ -37,11 +61,14 @@ export function validateParticipant(
 export function normalizeParticipant(
   participant: ContactParticipantPayload
 ): ContactParticipant {
+  const sanitizedPhone = participant.phone
+    ? sanitizePhoneNumber(participant.phone)
+    : null;
   return {
     id: participant.id?.trim() ?? '',
-    name: participant.name?.trim() ?? '',
-    phone: participant.phone?.trim() || undefined,
-    email: participant.email?.trim() || undefined,
+    name: sanitizeName(participant.name ?? ''),
+    phone: sanitizedPhone ?? undefined,
+    email: participant.email ? sanitizeEmail(participant.email) : undefined,
   };
 }
 
