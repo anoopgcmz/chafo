@@ -23,6 +23,8 @@ export async function getContactRequestCollection(): Promise<
 
   await collection.createIndex({ 'receiver.id': 1, status: 1, createdAt: -1 });
   await collection.createIndex({ 'requester.id': 1, status: 1, createdAt: -1 });
+  await collection.createIndex({ 'receiver.phone': 1, status: 1, createdAt: -1 });
+  await collection.createIndex({ 'requester.phone': 1, status: 1, createdAt: -1 });
   await collection.createIndex(
     { 'requester.id': 1, 'receiver.id': 1, status: 1 },
     {
