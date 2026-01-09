@@ -1,3 +1,5 @@
+import { MessageList } from './components/MessageList';
+
 const incomingRequests = [
   {
     id: 'req-902',
@@ -14,6 +16,31 @@ const incomingRequests = [
     email: 'mateo.silva@example.com',
     note: 'Can we connect for the upcoming science fair project?',
     sentAt: 'Yesterday',
+  },
+];
+
+const initialMessages = [
+  {
+    id: 'msg-500',
+    sender: 'Ava Carter',
+    body: 'I just read your note! Reply soon?',
+    createdAt: 'Just now',
+    readAt: new Date().toLocaleTimeString(),
+    deletionAt: new Date(Date.now() + 30000).toISOString(),
+  },
+  {
+    id: 'msg-501',
+    sender: 'Mateo Silva',
+    body: 'The science fair team is ready whenever you are.',
+    createdAt: '5 minutes ago',
+  },
+  {
+    id: 'msg-502',
+    sender: 'Coach Kim',
+    body: 'Practice starts in 10 minutes. See you there!',
+    createdAt: '10 minutes ago',
+    readAt: new Date().toLocaleTimeString(),
+    deletionAt: new Date(Date.now() - 10000).toISOString(),
   },
 ];
 
@@ -56,6 +83,19 @@ export default function HomePage() {
             </article>
           ))}
         </div>
+      </section>
+      <section className="card card--wide">
+        <header className="card__header">
+          <div>
+            <p className="eyebrow">Messages</p>
+            <h1>Recent chats</h1>
+          </div>
+          <span className="badge">{initialMessages.length}</span>
+        </header>
+        <p className="card__subtitle">
+          Messages disappear 30 seconds after they are read.
+        </p>
+        <MessageList initialMessages={initialMessages} />
       </section>
     </main>
   );
