@@ -1,3 +1,4 @@
+import { ContactSearch } from './components/ContactSearch';
 import { MessageList } from './components/MessageList';
 
 const incomingRequests = [
@@ -44,9 +45,27 @@ const initialMessages = [
   },
 ];
 
+const currentUser = {
+  id: 'user-700',
+  name: 'Jordan Lee',
+  phone: '+1 (415) 555-0101',
+};
+
 export default function HomePage() {
   return (
     <main className="page">
+      <section className="card card--wide">
+        <header className="card__header">
+          <div>
+            <p className="eyebrow">Contacts</p>
+            <h1>Find your accepted contacts</h1>
+          </div>
+        </header>
+        <p className="card__subtitle">
+          Search by phone number to start a chat or send a new request.
+        </p>
+        <ContactSearch currentUser={currentUser} />
+      </section>
       <section className="card card--wide">
         <header className="card__header">
           <div>
