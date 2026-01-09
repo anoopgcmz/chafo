@@ -18,6 +18,7 @@ export async function getMessageCollection(): Promise<Collection<MessageRecord>>
 
   await collection.createIndex({ receiverId: 1, createdAt: -1 });
   await collection.createIndex({ senderId: 1, createdAt: -1 });
+  await collection.createIndex({ senderId: 1, receiverId: 1, createdAt: -1 });
   await collection.createIndex({ deletionAt: 1 });
 
   return collection;
