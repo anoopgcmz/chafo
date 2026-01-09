@@ -5,9 +5,14 @@ import {
   type ContactRequestPayload,
   validateParticipant,
 } from '@/lib/contacts';
+import { getClientIp } from '@/lib/request';
+import { enforceRateLimit } from '@/lib/rateLimit';
 import { getContactRequestCollection } from '@/models/ContactRequest';
 
 const DUPLICATE_KEY_ERROR = 11000;
+const REQUEST_WINDOW_MS = 10 * 60 * 1000;
+const REQUEST_COOLDOWN_MS = 30 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 8;
 
 export async function POST(request: Request) {
   let payload: ContactRequestPayload;
@@ -37,6 +42,24 @@ export async function POST(request: Request) {
 
   if (errors.length > 0) {
     return Response.json({ errors }, { status: 400 });
+  }
+
+  const requesterId = payload.requester?.id?.trim() ?? 'unknown';
+  const clientIp = getClientIp(request) ?? 'unknown';
+  const rateLimitKey = `contact-request:${requesterId}:${clientIp}`;
+  const rateLimit = await enforceRateLimit({
+    key: rateLimitKey,
+    windowMs: REQUEST_WINDOW_MS,
+    maxRequests: MAX_REQUESTS_PER_WINDOW,
+    cooldownMs: REQUEST_COOLDOWN_MS,
+  });
+
+  if (!rateLimit.allowed) {
+    const retryAfter = Math.ceil((rateLimit.retryAfterMs ?? 0) / 1000);
+    return Response.json(
+      { error: 'Too many contact requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
+    );
   }
 
   const requester = normalizeParticipant(payload.requester ?? {});
