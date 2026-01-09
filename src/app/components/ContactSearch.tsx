@@ -17,9 +17,10 @@ type ContactSearchProps = {
     name: string;
     phone: string;
   };
+  onSendRequest?: () => void;
 };
 
-export function ContactSearch({ currentUser }: ContactSearchProps) {
+export function ContactSearch({ currentUser, onSendRequest }: ContactSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ContactSearchResult[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>(
@@ -156,7 +157,11 @@ export function ContactSearch({ currentUser }: ContactSearchProps) {
           <p className="search-empty__text">
             No accepted contacts match that phone number yet.
           </p>
-          <button className="button button--ghost" type="button">
+          <button
+            className="button button--ghost"
+            type="button"
+            onClick={onSendRequest}
+          >
             Send chat request
           </button>
         </div>
