@@ -17,6 +17,7 @@ export async function getContactCollection(): Promise<Collection<ContactRecord>>
 
   await collection.createIndex({ participantIds: 1 }, { unique: true });
   await collection.createIndex({ 'participants.id': 1 });
+  await collection.createIndex({ 'participants.phone': 1 });
 
   return collection;
 }
